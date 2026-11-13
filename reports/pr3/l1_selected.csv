@@ -1,0 +1,4 @@
+C,n_nonzero,features
+0.003,4,"LIMIT_BAL, max_delay, n_delays, PAY_1_0"
+0.01,17,"LIMIT_BAL, PAY_AMT1, PAY_AMT2, PAY_AMT3, PAY_AMT4, PAY_AMT5, PAY_AMT6, avg_bill, util_ratio_1, util_ratio_2, util_ratio_6, max_delay, n_delays, SEX_2, MARRIAGE_2, PAY_1_0, PAY_1_2"
+0.03,25,"LIMIT_BAL, BILL_AMT6, PAY_AMT1, PAY_AMT2, PAY_AMT3, PAY_AMT4, PAY_AMT5, PAY_AMT6, avg_bill, util_ratio_1, util_ratio_2, util_ratio_6, pay_ratio_3, pay_ratio_6, max_delay, n_delays, SEX_2, EDUCATION_3, MARRIAGE_2, PAY_1_-2, PAY_1_0, PAY_1_1, PAY_1_2, PAY_3_-2, PAY_6_0"

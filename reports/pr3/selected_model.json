@@ -1,0 +1,27 @@
+{
+  "exp_id": 17,
+  "model": "Логистическая регрессия L1 (C = 0.3)",
+  "estimator": "LogisticRegression",
+  "kind": "linear",
+  "features": "extended",
+  "params": {
+    "C": 0.3,
+    "l1_ratio": 1.0,
+    "solver": "liblinear",
+    "random_state": 42
+  },
+  "cv": {
+    "scheme": "StratifiedKFold(5, shuffle=True, random_state=42)",
+    "roc_auc_mean": 0.7845,
+    "roc_auc_std": 0.0034,
+    "pr_auc_mean": 0.5558,
+    "brier_mean": 0.1338
+  },
+  "rule": "наибольший средний ROC-AUC; при разнице меньше 0.005 выбирается более простое семейство, внутри семейства - модель с меньшим показателем Брайера",
+  "candidates_within_tol": [
+    "Логистическая регрессия L2 (C = 0.03)",
+    "Логистическая регрессия L1 (C = 0.3)",
+    "Логистическая регрессия (после подбора)",
+    "Градиентный бустинг (после подбора)"
+  ]
+}

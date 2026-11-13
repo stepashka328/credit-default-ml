@@ -22,9 +22,11 @@ UCI Machine Learning Repository, DOI [10.24432/C55S3H](https://doi.org/10.24432/
 | `data/raw/credit_default.csv` | 30 000 | исходный набор, не изменяется |
 | `data/initial.csv` | 18 000 (60 %) | исходная часть: EDA, обучение, оценка |
 | `data/incoming/batch_01.csv … batch_04.csv` | по 3 000 | порции «новых» данных |
+| `data/train.csv` | 14 388 | обучающая выборка (80 % исходной части без дубликатов) |
+| `data/test.csv` | 3 598 | отложенная тестовая выборка (20 %), используется только в ПР4 |
 
 Даты в наборе нет, поэтому деление случайное, стратифицированное по целевой
-переменной, `seed = 42` (`src/split_batches.py`).
+переменной, `seed = 42` (`src/split_batches.py`, `src/split_train_test.py`).
 
 ## Структура репозитория
 
@@ -32,14 +34,20 @@ UCI Machine Learning Repository, DOI [10.24432/C55S3H](https://doi.org/10.24432/
 ├── data/
 │   ├── raw/                 исходный набор (не изменяется)
 │   ├── initial.csv          исходная часть
-│   └── incoming/            порции новых данных
+│   ├── train.csv, test.csv  обучающая и тестовая выборки (ПР3)
+│   ├── incoming/            порции новых данных
+│   └── processed/           таблицы признаков (создаются, в Git не хранятся)
 ├── src/
 │   ├── config.py            пути, seed, состав столбцов
 │   ├── split_batches.py     ПР2: разбиение на исходную часть и порции
-│   └── eda.py               ПР2: разведочный анализ исходной части
+│   ├── eda.py               ПР2: разведочный анализ исходной части
+│   ├── features.py          ПР3: очистка, новые признаки, пайплайн (Pipeline)
+│   ├── split_train_test.py  ПР3: обучающая и тестовая выборки
+│   ├── experiments.py       ПР3: эксперименты и выбор модели
+│   └── train.py             ПР3: обучение и сохранение итоговой модели
 ├── diagrams/                диаграммы архитектуры (C4, UML)
 ├── reports/                 таблицы и графики, создаваемые скриптами (по работам)
-├── models/                  сохранённые модели и их описания (с ПР3)
+├── models/                  итоговая модель model_v1.joblib и описание model_v1.json
 ├── app/                     панель показателей и API (ПР5)
 ├── tests/                   автоматические тесты
 ├── requirements.txt         зависимости с точными версиями
@@ -66,6 +74,11 @@ python -m pip install -r requirements.txt
 |---|---|---|
 | ПР2. Разбиение данных | `python src/split_batches.py` | `data/initial.csv`, `data/incoming/*.csv` |
 | ПР2. Разведочный анализ | `python src/eda.py` | `reports/pr2/` |
+| ПР3. Обучающая и тестовая выборки | `python src/split_train_test.py` | `data/train.csv`, `data/test.csv` |
+| ПР3. Таблица признаков любого файла | `python src/features.py data/incoming/batch_01.csv` | `data/processed/batch_01_features.csv` |
+| ПР3. Эксперименты (≈ 10 мин) | `python src/experiments.py` | `reports/experiments.csv`, `reports/pr3/` |
+| ПР3. Итоговая модель | `python src/train.py` | `models/model_v1.joblib`, `models/model_v1.json` |
+| Тесты | `python -m pytest tests` | 4 теста пайплайна признаков |
 
 ## Воспроизводимость
 
@@ -82,6 +95,8 @@ python -m pip install -r requirements.txt
   | `data/incoming/batch_02.csv` | `c02a558081da1254dd416d50ae549623` |
   | `data/incoming/batch_03.csv` | `9792bfbc5f22aeb5372fbec4c35429e2` |
   | `data/incoming/batch_04.csv` | `a715266e124f89c7b81255d362540495` |
+  | `data/train.csv` | `cfef5da3102c7430fced013df0e5180b` |
+  | `data/test.csv` | `18f139aaf554afd60781147ce2cbb9ad` |
 
 ## Версии по практическим работам
 
@@ -89,6 +104,7 @@ python -m pip install -r requirements.txt
 |---|---|
 | `pr1` | инициализация проекта: структура, зависимости, исходные данные |
 | `pr2` | разбиение данных и разведочный анализ (данные под DVC) |
+| `pr3` | пайплайн признаков, обучение и сравнение моделей, итоговая модель `model_v1` |
 
 После `pr2` проект перестроен по структуре учебно-методического пособия:
 данные хранятся непосредственно в Git (объём около 6 МБ, DVC без удалённого
