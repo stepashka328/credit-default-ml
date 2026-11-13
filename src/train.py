@@ -63,6 +63,14 @@ def main() -> None:
     proba = model.predict_proba(X)[:, 1]
     same = np.array_equal(joblib.load(model_path).predict_proba(X)[:, 1], proba)
 
+    # для линейной модели - число ненулевых коэффициентов и обнуленные признаки
+    coef_info = None
+    if hasattr(model[-1], "coef_"):
+        names = model.named_steps["prep"].get_feature_names_out()
+        coef = model[-1].coef_[0]
+        coef_info = {"total": int(coef.size), "nonzero": int((coef != 0).sum()),
+                     "zero": [str(f) for f, c in zip(names, coef) if c == 0]}
+
     info = {
         "version": VERSION,
         "trained": date.today().isoformat(),
@@ -83,6 +91,7 @@ def main() -> None:
         "selection": {"experiment_id": sel["exp_id"], "rule": sel["rule"],
                       "candidates_within_tol": sel["candidates_within_tol"]},
         "cv_metrics": sel["cv"],
+        "coefficients": coef_info,
         "seed": SEED,
         "fit_time_s": round(fit_time, 2),
         "environment": {"python": platform.python_version(),
@@ -101,6 +110,8 @@ def main() -> None:
     print(f"Параметры: {sel['params']}")
     print(f"Обучена на {len(y)} записях за {fit_time:.1f} с; "
           f"ROC-AUC на кросс-валидации {sel['cv']['roc_auc_mean']:.3f}")
+    if coef_info:
+        print(f"Ненулевых коэффициентов: {coef_info['nonzero']} из {coef_info['total']}")
     print(f"Модель из файла дает те же вероятности: {same}")
     print(f"Сохранено: {model_path.relative_to(ROOT).as_posix()}, "
           f"{info_path.relative_to(ROOT).as_posix()}")

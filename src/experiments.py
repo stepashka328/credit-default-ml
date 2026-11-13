@@ -9,7 +9,7 @@
 классификации -> ансамбли -> польза новых признаков -> подбор
 гиперпараметров -> сводная таблица и выбор итоговой модели.
 
-Запуск из корня репозитория (около 10 минут):
+Запуск из корня репозитория (около 3 минут):
     python src/experiments.py
 Результаты: reports/experiments.csv, reports/pr3/ (таблицы, графики,
 selected_model.json - описание выбранной модели для src/train.py).
@@ -30,13 +30,14 @@ from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import make_scorer, precision_score
-from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_validate
+from sklearn.model_selection import (GridSearchCV, StratifiedKFold, cross_val_predict,
+                                     cross_validate)
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 
-from config import REPORTS_DIR, SEED
-from features import make_pipeline, prepare
+from config import PAY_COLS, REPORTS_DIR, SEED
+from features import CAT_COLS, make_pipeline, prepare
 from split_train_test import TRAIN_PATH
 
 OUT = REPORTS_DIR / "pr3"
@@ -151,6 +152,7 @@ def lr_params(penalty: str, C: float) -> dict:
 
 def main() -> None:
     warnings.filterwarnings("ignore", category=UserWarning)
+    plt.rcParams.update({"font.size": 11})
     OUT.mkdir(parents=True, exist_ok=True)
     X, y = prepare(TRAIN_PATH)
     print(f"Обучающая выборка: {len(y)} записей, доля дефолтов {y.mean():.3f}")
@@ -182,7 +184,7 @@ def main() -> None:
     reg = pd.DataFrame(reg)
     reg.to_csv(OUT / "regularization.csv", index=False)
 
-    fig, ax = plt.subplots(1, 2, figsize=(11, 4))
+    fig, ax = plt.subplots(1, 2, figsize=(10, 4.2))
     for pen, color, marker in [("L2", BLUE, "o"), ("L1", ORANGE, "s")]:
         part = reg[reg.penalty == pen]
         ax[0].plot(part.C, part.roc_auc, color=color, marker=marker, lw=2, ms=6,
@@ -211,6 +213,19 @@ def main() -> None:
     lr = make_pipeline(LogisticRegression(**lr_params("l2", best_c["L2"])), "linear").fit(X, y)
     names = lr.named_steps["prep"].get_feature_names_out()
     coefs = pd.DataFrame({"feature": names, "coef": lr[-1].coef_[0]})
+    # для индикаторов категорий - число записей и доля дефолтов в категории
+    n_rec, rate = [], []
+    for f in names:
+        col, _, val = f.rpartition("_")
+        if col in CAT_COLS + PAY_COLS and val.lstrip("-").isdigit():
+            mask = X[col] == int(val)
+            n_rec.append(int(mask.sum()))
+            rate.append(y[mask].mean())
+        else:
+            n_rec.append(None)
+            rate.append(None)
+    coefs["n_records"] = n_rec
+    coefs["default_rate"] = rate
     coefs["abs"] = coefs.coef.abs()
     coefs.sort_values("abs", ascending=False).drop(columns="abs") \
         .to_csv(OUT / "logreg_coefs.csv", index=False)
@@ -334,6 +349,20 @@ def main() -> None:
         model_run("tuning", label, cls, params, kind, X, y,
                   extra={"n_combinations": n_comb})
 
+    # калибровка: средняя прогнозная вероятность дефолта с весами классов и без них
+    calib = []
+    for cw in [None, "balanced"]:
+        params = {**lr_params("l1", best_c["L1"]), "class_weight": cw}
+        proba = cross_val_predict(make_pipeline(LogisticRegression(**params), "linear"),
+                                  X, y, cv=CV, method="predict_proba",
+                                  n_jobs=N_JOBS)[:, 1]
+        calib.append({"model": f"Логистическая регрессия L1 (C = {best_c['L1']:g})",
+                      "class_weight": cw or "нет", "mean_pd": proba.mean(),
+                      "default_rate": y.mean(), "brier": ((proba - y) ** 2).mean()})
+        print(f"  веса классов {cw or 'нет'}: средняя вероятность дефолта "
+              f"{proba.mean():.3f} при доле дефолтов {y.mean():.3f}")
+    pd.DataFrame(calib).to_csv(OUT / "class_weight_calibration.csv", index=False)
+
     # ---------- 7. Сводная таблица и выбор модели ----------
     print("7. Сводная таблица и выбор итоговой модели")
     exp = pd.DataFrame(ROWS)
@@ -383,19 +412,19 @@ def main() -> None:
 
     # график сравнения
     plot = summary.iloc[::-1]
-    fig, ax = plt.subplots(figsize=(9, 6.4))
+    fig, ax = plt.subplots(figsize=(8.6, 6.8))
     colors = [ORANGE if e == chosen.exp_id else (MUTED if s == "baseline" else BLUE)
               for e, s in zip(plot.exp_id, plot.stage)]
     ax.barh(range(len(plot)), plot.roc_auc_mean, xerr=plot.roc_auc_std, color=colors,
             height=0.6, error_kw={"ecolor": INK, "elinewidth": 1, "capsize": 3})
     for i, (v, sd) in enumerate(zip(plot.roc_auc_mean, plot.roc_auc_std)):
         ax.text(v + sd + 0.006, i, f"{v:.3f}".replace(".", ","), va="center",
-                fontsize=9, color=INK)
+                fontsize=10, color=INK)
     labels = [m.replace(">=", "≥").replace("0.", "0,") for m in plot.model]
-    ax.set_yticks(range(len(plot)), labels, fontsize=9)
+    ax.set_yticks(range(len(plot)), labels, fontsize=10)
     ax.set_xlim(0.45, 0.85)
     comma(ax, "x", 2)
-    style(ax, "Сравнение моделей по ROC-AUC (среднее ± ст. откл. по 5 блокам)",
+    style(ax, "ROC-AUC: среднее ± ст. откл. по 5 блокам",
           "ROC-AUC на кросс-валидации", "")
     from matplotlib.patches import Patch
     ax.legend(handles=[Patch(color=MUTED, label="Базовое решение"),

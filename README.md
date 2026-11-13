@@ -76,7 +76,7 @@ python -m pip install -r requirements.txt
 | ПР2. Разведочный анализ | `python src/eda.py` | `reports/pr2/` |
 | ПР3. Обучающая и тестовая выборки | `python src/split_train_test.py` | `data/train.csv`, `data/test.csv` |
 | ПР3. Таблица признаков любого файла | `python src/features.py data/incoming/batch_01.csv` | `data/processed/batch_01_features.csv` |
-| ПР3. Эксперименты (≈ 10 мин) | `python src/experiments.py` | `reports/experiments.csv`, `reports/pr3/` |
+| ПР3. Эксперименты (≈ 3 мин) | `python src/experiments.py` | `reports/experiments.csv`, `reports/pr3/` |
 | ПР3. Итоговая модель | `python src/train.py` | `models/model_v1.joblib`, `models/model_v1.json` |
 | Тесты | `python -m pytest tests` | 4 теста пайплайна признаков |
 
