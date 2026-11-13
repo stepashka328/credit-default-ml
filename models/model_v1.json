@@ -83,8 +83,52 @@
     "pr_auc_mean": 0.5558,
     "brier_mean": 0.1338
   },
+  "coefficients": {
+    "total": 91,
+    "nonzero": 53,
+    "zero": [
+      "util_ratio_3",
+      "n_delays",
+      "SEX_1",
+      "EDUCATION_2",
+      "MARRIAGE_1",
+      "MARRIAGE_3",
+      "PAY_1_1",
+      "PAY_1_8",
+      "PAY_1_infrequent_sklearn",
+      "PAY_2_-1",
+      "PAY_2_1",
+      "PAY_2_3",
+      "PAY_2_5",
+      "PAY_2_7",
+      "PAY_2_infrequent_sklearn",
+      "PAY_3_-1",
+      "PAY_3_3",
+      "PAY_3_4",
+      "PAY_3_5",
+      "PAY_3_6",
+      "PAY_3_infrequent_sklearn",
+      "PAY_4_-2",
+      "PAY_4_-1",
+      "PAY_4_0",
+      "PAY_4_3",
+      "PAY_4_4",
+      "PAY_4_7",
+      "PAY_4_infrequent_sklearn",
+      "PAY_5_0",
+      "PAY_5_3",
+      "PAY_5_7",
+      "PAY_5_infrequent_sklearn",
+      "PAY_6_-2",
+      "PAY_6_-1",
+      "PAY_6_3",
+      "PAY_6_4",
+      "PAY_6_7",
+      "PAY_6_infrequent_sklearn"
+    ]
+  },
   "seed": 42,
-  "fit_time_s": 1.26,
+  "fit_time_s": 1.2,
   "environment": {
     "python": "3.12.10",
     "scikit-learn": "1.9.1",
@@ -93,7 +137,7 @@
     "joblib": "1.6.0"
   },
   "code": {
-    "git_commit": "daf8213",
+    "git_commit": "d095691",
     "train": "python src/split_train_test.py && python src/experiments.py && python src/train.py"
   },
   "file": {
