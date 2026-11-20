@@ -16,6 +16,10 @@ INCOMING_DIR = DATA_DIR / "incoming"                 # порции «новых
 MODELS_DIR = ROOT / "models"
 REPORTS_DIR = ROOT / "reports"
 
+# ПР5: хранилище системы и указатель на действующую версию модели
+DB_PATH = DATA_DIR / "credit_system.db"
+CURRENT_MODEL = MODELS_DIR / "current.json"
+
 SEED = 42
 
 ID_COL = "ID"

@@ -6,3 +6,9 @@ scikit-learn==1.9.1
 matplotlib==3.11.2
 joblib==1.6.0
 pytest==9.2.0
+
+# ПР5: панель показателей, программный интерфейс и тесты API
+fastapi==0.128.0
+uvicorn==0.44.0
+streamlit==1.67.0
+httpx==0.28.1

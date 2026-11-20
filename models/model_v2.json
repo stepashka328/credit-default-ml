@@ -1,0 +1,40 @@
+{
+  "version": "v2",
+  "trained": "2026-11-15",
+  "task": "вероятность дефолта клиента в следующем месяце (dpnm = 1)",
+  "algorithm": "LogisticRegression",
+  "model": "Логистическая регрессия L1 (C = 0.3)",
+  "params": {
+    "C": 0.3,
+    "l1_ratio": 1.0,
+    "solver": "liblinear",
+    "random_state": 42
+  },
+  "preprocessing": "linear",
+  "data": {
+    "train": [
+      "data/train.csv",
+      "data/incoming/batch_01.csv",
+      "data/incoming/batch_02.csv",
+      "data/incoming/batch_03.csv",
+      "70 % data/incoming/batch_05.csv"
+    ],
+    "n_train": 25485,
+    "note": "batch_04 исключен: его записи входят в стресс-порцию batch_05; контроль - 30 % batch_05",
+    "holdout": {
+      "n": 900,
+      "roc_auc_v1": 0.7452,
+      "roc_auc_v2": 0.765
+    }
+  },
+  "selection": {
+    "rule": "претендент заменяет действующую модель, если ROC-AUC не хуже более чем на 0,01, а расхождение прогнозной и фактической доли дефолтов меньше",
+    "replaced": true
+  },
+  "seed": 42,
+  "fit_time_s": 5.11,
+  "file": {
+    "path": "/home/z/my-project/project/тимо для z ai/models/model_v2.joblib"
+  },
+  "previous": "v1"
+}

@@ -8,7 +8,9 @@
 апрель – сентябрь 2005 г. оценить вероятность дефолта в следующем месяце.
 Система принимает очередную порцию данных, проверяет её качество, применяет
 модель и пересчитывает ключевые показатели портфеля (доля клиентов в зоне
-риска, ожидаемые потери, средняя вероятность дефолта).
+риска, ожидаемые потери, средняя вероятность дефолта); панель показателей и
+API отображают результаты, мониторинг следит за дрейфом данных и качеством
+модели, при сигнале модель переобучается с сохранением версии и откатом.
 
 ## Данные
 
@@ -22,6 +24,8 @@ UCI Machine Learning Repository, DOI [10.24432/C55S3H](https://doi.org/10.24432/
 | `data/raw/credit_default.csv` | 30 000 | исходный набор, не изменяется |
 | `data/initial.csv` | 18 000 (60 %) | исходная часть: EDA, обучение, оценка |
 | `data/incoming/batch_01.csv … batch_04.csv` | по 3 000 | порции «новых» данных |
+| `data/incoming/batch_05.csv` | 3 000 | стресс-порция: имитация дрейфа для демонстрации мониторинга (`src/make_stress_batch.py`, ПР4) |
+| `data/demo/bad_batch.csv` | 300 | испорченная порция для демонстрации проверок качества (`src/make_bad_batch.py`) |
 | `data/train.csv` | 14 388 | обучающая выборка (80 % исходной части без дубликатов) |
 | `data/test.csv` | 3 598 | отложенная тестовая выборка (20 %), используется только в ПР4 |
 
@@ -44,12 +48,22 @@ UCI Machine Learning Repository, DOI [10.24432/C55S3H](https://doi.org/10.24432/
 │   ├── features.py          ПР3: очистка, новые признаки, пайплайн (Pipeline)
 │   ├── split_train_test.py  ПР3: обучающая и тестовая выборки
 │   ├── experiments.py       ПР3: эксперименты и выбор модели
-│   └── train.py             ПР3: обучение и сохранение итоговой модели
-├── diagrams/                диаграммы архитектуры (C4, UML)
+│   ├── train.py             ПР3: обучение и сохранение итоговой модели
+│   ├── evaluate.py          ПР4: оценка, интерпретация, порции, паспорт модели
+│   ├── quality.py           ПР4/ПР5: проверки качества данных Q1–Q10
+│   ├── monitoring.py        ПР4/ПР5: PSI и правила мониторинга
+│   ├── make_bad_batch.py    ПР4: испорченная порция для проверки Q1–Q10
+│   ├── make_stress_batch.py ПР4: стресс-порция batch_05 (имитация дрейфа)
+│   ├── storage.py           ПР5: хранилище SQLite (4 таблицы)
+│   ├── process_batch.py     ПР5: сценарий обновления одной командой
+│   ├── retrain.py           ПР5: переобучение, замена и откат версий
+│   └── api_benchmark.py     ПР5: замер времени ответа API (N-02)
+├── diagrams/                диаграммы архитектуры (C4, UML; pr5 - draw.io + PNG)
 ├── reports/                 таблицы и графики, создаваемые скриптами (по работам)
-├── models/                  итоговая модель model_v1.joblib и описание model_v1.json
-├── app/                     панель показателей и API (ПР5)
-├── tests/                   автоматические тесты
+├── models/                  модели model_vN.joblib с описаниями и указателем
+│                            действующей версии current.json (порог 0,25)
+├── app/                     панель показателей (Streamlit) и API (FastAPI), ПР5
+├── tests/                   автоматические тесты (пайплайн и API)
 ├── requirements.txt         зависимости с точными версиями
 └── README.md
 ```
@@ -78,7 +92,15 @@ python -m pip install -r requirements.txt
 | ПР3. Таблица признаков любого файла | `python src/features.py data/incoming/batch_01.csv` | `data/processed/batch_01_features.csv` |
 | ПР3. Эксперименты (≈ 3 мин) | `python src/experiments.py` | `reports/experiments.csv`, `reports/pr3/` |
 | ПР3. Итоговая модель | `python src/train.py` | `models/model_v1.joblib`, `models/model_v1.json` |
-| Тесты | `python -m pytest tests` | 4 теста пайплайна признаков |
+| ПР4. Демонстрационные порции | `python src/make_bad_batch.py` и `python src/make_stress_batch.py` | `data/demo/bad_batch.csv`, `data/incoming/batch_05.csv` |
+| ПР4. Оценка и валидация (≈ 1 мин) | `python src/evaluate.py` | `reports/pr4/` (протокол, метрики, срезы, важность, PSI, паспорт) |
+| ПР5. Обработка порции | `python src/process_batch.py data/incoming/batch_01.csv` | записи в `data/credit_system.db`, JSON-сводка |
+| ПР5. Панель показателей | `streamlit run app/dashboard.py` | панель на http://localhost:8501 |
+| ПР5. Программный интерфейс | `uvicorn app.api:app --port 8000` | API на http://localhost:8000/docs |
+| ПР5. Переобучение / откат | `python src/retrain.py` (`--rollback v1`) | `models/model_v2.joblib`, `current.json` |
+| ПР5. Замер времени API | `python src/api_benchmark.py` | `reports/pr5/api_timing.json` |
+| ПР5. Диаграммы | `python src/make_diagrams.py` | `diagrams/pr5/` (draw.io + PNG) |
+| Тесты | `python -m pytest tests` | 4 теста пайплайна признаков и 5 тестов API |
 
 ## Воспроизводимость
 
@@ -95,6 +117,7 @@ python -m pip install -r requirements.txt
   | `data/incoming/batch_02.csv` | `c02a558081da1254dd416d50ae549623` |
   | `data/incoming/batch_03.csv` | `9792bfbc5f22aeb5372fbec4c35429e2` |
   | `data/incoming/batch_04.csv` | `a715266e124f89c7b81255d362540495` |
+| `data/incoming/batch_05.csv` (создается скриптом) | `30326c7211119c68fc2f90b5ecfd8c12` |
   | `data/train.csv` | `cfef5da3102c7430fced013df0e5180b` |
   | `data/test.csv` | `18f139aaf554afd60781147ce2cbb9ad` |
 
@@ -105,6 +128,8 @@ python -m pip install -r requirements.txt
 | `pr1` | инициализация проекта: структура, зависимости, исходные данные |
 | `pr2` | разбиение данных и разведочный анализ (данные под DVC) |
 | `pr3` | пайплайн признаков, обучение и сравнение моделей, итоговая модель `model_v1` |
+| `pr4` | оценка качества на тесте и порциях, интерпретация, порог 0,25, паспорт модели |
+| `pr5` | сервис: хранилище SQLite, сценарий обновления, панель Streamlit, API FastAPI, мониторинг и переобучение (v2) |
 
 После `pr2` проект перестроен по структуре учебно-методического пособия:
 данные хранятся непосредственно в Git (объём около 6 МБ, DVC без удалённого
