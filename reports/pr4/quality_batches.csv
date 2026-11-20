@@ -1,0 +1,5 @@
+batch,ok,rows,rejected_share
+batch_01,True,3000,0.0
+batch_02,True,3000,0.0
+batch_03,True,3000,0.0
+batch_04,True,3000,0.0

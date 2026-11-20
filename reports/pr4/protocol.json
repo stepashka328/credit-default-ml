@@ -1,0 +1,30 @@
+{
+  "fixed_on": "2026-11-15",
+  "metrics": [
+    "ROC-AUC (основная)",
+    "PR-AUC",
+    "показатель Брайера",
+    "точность, полнота, F1 при выбранном пороге"
+  ],
+  "costs": {
+    "c_fn_ntd": 15706.0,
+    "c_fp_ntd": 5193.0,
+    "lgd": 0.8,
+    "prevented_share": 0.4,
+    "fp_rate": 0.1,
+    "mean_bill_defaulters": 49082.0,
+    "mean_bill_good": 51928.0
+  },
+  "acceptance": {
+    "roc_auc_min": 0.75,
+    "roc_auc_vs_rule_min": 0.05,
+    "pr_auc_min": 0.5,
+    "brier_max": 0.145,
+    "recall_at_threshold_min": 0.55,
+    "calibration_gap_max": 0.02,
+    "batch_roc_auc_min": 0.75,
+    "batch_calibration_gap_max": 0.05,
+    "psi_alert": 0.25
+  },
+  "note": "пороги зафиксированы до обращения к тестовой выборке; основаны на кросс-валидации ПР3 и бизнес-допущениях о цене ошибок"
+}

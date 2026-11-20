@@ -1,0 +1,91 @@
+{
+  "ok": false,
+  "rows": 300,
+  "checks": [
+    {
+      "id": "Q1",
+      "name": "ID не пуст и уникален в порции",
+      "violations": 2,
+      "action": "порция не обрабатывается",
+      "blocking": true,
+      "failed": true
+    },
+    {
+      "id": "Q2",
+      "name": "набор столбцов, числовые типы и отсутствие пропусков",
+      "violations": 11,
+      "action": "порция не обрабатывается",
+      "blocking": true,
+      "failed": true
+    },
+    {
+      "id": "Q3",
+      "name": "LIMIT_BAL больше 0",
+      "violations": 1,
+      "action": "запись исключается",
+      "blocking": false,
+      "failed": true
+    },
+    {
+      "id": "Q4",
+      "name": "AGE в диапазоне 18..100",
+      "violations": 7,
+      "action": "запись исключается",
+      "blocking": false,
+      "failed": true
+    },
+    {
+      "id": "Q5",
+      "name": "EDUCATION из 0..6, коды 0/5/6 перекодируются в 4",
+      "violations": 6,
+      "action": "перекодировка",
+      "blocking": false,
+      "failed": true
+    },
+    {
+      "id": "Q6",
+      "name": "MARRIAGE из 0..3, код 0 перекодируется в 3",
+      "violations": 2,
+      "action": "перекодировка",
+      "blocking": false,
+      "failed": true
+    },
+    {
+      "id": "Q7",
+      "name": "PAY_1..PAY_6 - целые значения от -2 до 8",
+      "violations": 1,
+      "action": "запись исключается",
+      "blocking": false,
+      "failed": true
+    },
+    {
+      "id": "Q8",
+      "name": "PAY_AMT1..PAY_AMT6 не меньше 0",
+      "violations": 3,
+      "action": "запись исключается",
+      "blocking": false,
+      "failed": true
+    },
+    {
+      "id": "Q9",
+      "name": "нет полных дубликатов строк (без ID)",
+      "violations": 1,
+      "action": "дубликаты удаляются",
+      "blocking": false,
+      "failed": true
+    },
+    {
+      "id": "Q10",
+      "name": "доля отклонённых записей не более 5 %",
+      "violations": 1,
+      "action": "порция помечается «на проверку»",
+      "blocking": false,
+      "failed": true
+    }
+  ],
+  "rejected_share": 0.0567,
+  "failed": [
+    "Q1 ID не пуст и уникален в порции",
+    "Q2 набор столбцов, числовые типы и отсутствие пропусков"
+  ]
+}
