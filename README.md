@@ -95,8 +95,8 @@ python -m pip install -r requirements.txt
 | ПР4. Демонстрационные порции | `python src/make_bad_batch.py` и `python src/make_stress_batch.py` | `data/demo/bad_batch.csv`, `data/incoming/batch_05.csv` |
 | ПР4. Оценка и валидация (≈ 1 мин) | `python src/evaluate.py` | `reports/pr4/` (протокол, метрики, срезы, важность, PSI, паспорт) |
 | ПР5. Обработка порции | `python src/process_batch.py data/incoming/batch_01.csv` | записи в `data/credit_system.db`, JSON-сводка |
-| ПР5. Панель показателей | `streamlit run app/dashboard.py` | панель на http://localhost:8501 |
-| ПР5. Программный интерфейс | `uvicorn app.api:app --port 8000` | API на http://localhost:8000/docs |
+| ПР5. Панель показателей | `streamlit run app/dashboard.py` |  |
+| ПР5. Программный интерфейс | `uvicorn app.api:app --port 8000` |  |
 | ПР5. Переобучение / откат | `python src/retrain.py` (`--rollback v1`) | `models/model_v2.joblib`, `current.json` |
 | ПР5. Замер времени API | `python src/api_benchmark.py` | `reports/pr5/api_timing.json` |
 | ПР5. Диаграммы | `python src/make_diagrams.py` | `diagrams/pr5/` (draw.io + PNG) |
